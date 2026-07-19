@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 app.get('/auth.php', (req, res) => {
     const userHwid = req.query.hwid;
 
-    const rawHwids = process.env.ALLOWED_HWIDS || "";
+    const rawHwids = process.env.ALLOWED_HWIDS || "abef8842331bfcdb0b676b40cfd2ba83bafd04d147d1c9c14fbe3b3370549a75";
     
     const allowedHwids = rawHwids.split(',').map(id => id.trim());
 
