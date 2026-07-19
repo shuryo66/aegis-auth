@@ -3,16 +3,35 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get('/auth.php', (req, res) => {
-    const userHwid = req.query.hwid;
-
-    const rawHwids = process.env.ALLOWED_HWIDS || "abef8842331bfcdb0b676b40cfd2ba83bafd04d147d1c9c14fbe3b3370549a75";
+    const userHwid = req.query.hwid ? req.query.hwid.trim().toLowerCase() : "";
+    const rawHwids = process.env.ALLOWED_HWIDS || "";
     
-    const allowedHwids = rawHwids.split(',').map(id => id.trim());
+    // Переменная для хранения найденной роли
+    let userRole = null;
 
-    if (userHwid && allowedHwids.includes(userHwid)) {
-        res.send("ACCESS_GRANTED_SECURE_KEY_1337");
+    // Парсим строку вида: hwid:role,hwid:role
+    const entries = rawHwids.split(',').map(item => item.trim());
+    
+    for (const entry of entries) {
+        const [hwid, role] = entry.split(':');
+        if (hwid && hwid.trim().toLowerCase() === userHwid) {
+            userRole = role ? role.trim().toLowerCase() : 'user'; // по умолчанию 'user'
+            break;
+        }
+    }
+
+    if (userRole) {
+        // Если HWID найден, отдаем JSON с успешным статусом и ролью
+        res.json({
+            status: "success",
+            key: "ACCESS_GRANTED_SECURE_KEY_1337",
+            role: userRole
+        });
     } else {
-        res.send("ACCESS_DENIED");
+        res.json({
+            status: "error",
+            message: "ACCESS_DENIED"
+        });
     }
 });
 
